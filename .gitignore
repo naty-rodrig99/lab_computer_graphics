@@ -1,0 +1,9 @@
+inviwo-log.html
+**/.DS_Store
+*.pyc
+pyconfig.ini
+.idea
+.vscode
+.clangd
+compile_commands.json
+CMakeUserPresets.json

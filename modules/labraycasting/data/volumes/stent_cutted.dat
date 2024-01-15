@@ -1,0 +1,14 @@
+RawFile: stent_cutted.raw
+Resolution: 451 661 322
+Format: FLOAT32
+BasisVector1: 377.91 0 0
+BasisVector2: 0 553.6 0
+BasisVector3: 0 0 269.576
+Offset: 51.2278 0 48.7084
+WorldVector1: 1 0 0 0
+WorldVector2: 0 1 0 0
+WorldVector3: 0 0 1 0
+WorldVector4: 0 0 0 1
+DataRange: 6.53005e-42 1
+ValueRange: 6.53005e-42 1
+Unit: arb. unit.
