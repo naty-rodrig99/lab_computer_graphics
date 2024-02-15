@@ -37,9 +37,7 @@ CubeAnimator::CubeAnimator()
     // Properties 
     // For a FloatProperty 
     // variablename(identifier, display name, init value, minvalue, maxvalue)
-    , radius_("radius", "Radius", 0, 0, 4)
-    , rotate_("angle", "Angle", 0, 0, 180)
-    , scale_("scale", "Scale", 1, 0, 3)
+    , radius_("radius", "Radius", 6, 1, 8)
 {
     // Add ports
     addPort(meshIn_);
@@ -47,8 +45,6 @@ CubeAnimator::CubeAnimator()
     
     // Add properties
     addProperty(radius_);
-    addProperty(rotate_);
-    addProperty(scale_);
 }
 
 
@@ -77,13 +73,7 @@ void CubeAnimator::process()
     * where sx, sy, sz are the scaling factors in x, y, z direction.
     * 
     */
-
-    //translates the matrix by a certain distance along the z-axis, where the distance is determined by radius_.get()
-    matrix = glm::translate(vec3(0, 0, - radius_.get())) * matrix;
-    //rotates the matrix around the z-axis by an angle obtained from rotate_.get()
-    matrix = glm::rotate(rotate_.get(), vec3(0, 0, 1)) * matrix; 
-    //scales the matrix uniformly along all three axes by a scaling factor obtained from scale_.get()
-    matrix = glm::scale(vec3(scale_.get(), scale_.get(), scale_.get())) * matrix;
+    matrix = glm::translate(vec3(radius_.get(), 0, 0)) * matrix;
 
     // Update
     mesh->setWorldMatrix(matrix);

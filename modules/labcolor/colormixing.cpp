@@ -57,11 +57,11 @@ ColorMixing::ColorMixing()
 */
 vec3 ColorMixing::AdditiveColorMixing(const vec3& Color1, const vec3& Color2)
 {
-    vec3 MixedColor;
-    vec3 Black(0, 0, 0);
-    vec3 White(1, 1, 1);
+    vec3 MixedColor = Color1 + Color2; // Add color1 to color2
+    /* vec3 Black(0, 0, 0);
+    /* vec3 White(1, 1, 1);*/
 
-    MixedColor = White - Color1;
+    MixedColor = glm::clamp(MixedColor, 0.0f, 1.0f); //Clamp to limit values (0-1).
 
     return MixedColor;
 }
@@ -82,11 +82,10 @@ vec3 ColorMixing::AdditiveColorMixing(const vec3& Color1, const vec3& Color2)
 */
 vec3 ColorMixing::SubtractiveColorMixing(const vec3& ColorIncomingLight, const vec3& ColorSurface)
 {
-    vec3 MixedColor;
-    vec3 Black(0, 0, 0);
-    vec3 White(1, 1, 1);
-
-    MixedColor = Black + ColorSurface;
+    vec3 ComplimentaryColorSurface = vec3(1.0f) - ColorSurface; // Adjust from rgb primaries to CMY mode, find the complimentary color of the surface color (1-color).
+    vec3 MixedColor = ColorIncomingLight * ColorSurface; //Then multiply the result with the incoming light color - filtering effect.
+    
+    MixedColor = glm::clamp(MixedColor, 0.0f, 1.0f); //Clamp to limit values 0-1.
 
     return MixedColor;
 }
@@ -120,31 +119,31 @@ void ColorMixing::Mix(const size2_t& Resolution, glm::u8vec3* pRaw)
                 switch (pRaw[Idx].r)
                 {
                     case 255:
-                        pRaw[Idx] = ToUChar(ColorA);
+                        pRaw[Idx] = ToUChar(ColorA); //red to cyan
                         break;
 
                     case 200:
-                        pRaw[Idx] = ToUChar(ColorB);
+                        pRaw[Idx] = ToUChar(ColorB); //green to magenta
                         break;
 
                     case 220:
-                        pRaw[Idx] = ToUChar(ColorC);
+                        pRaw[Idx] = ToUChar(ColorC); //blue to yellow
                         break;
 
                     case 180:
-                        pRaw[Idx] = ToUChar(ColorAB);
+                        pRaw[Idx] = ToUChar(ColorAB); 
                         break;
 
                     case 160:
-                        pRaw[Idx] = ToUChar(ColorBC);
+                        pRaw[Idx] = ToUChar(ColorBC); 
                         break;
 
                     case 140:
-                        pRaw[Idx] = ToUChar(ColorAC);
+                        pRaw[Idx] = ToUChar(ColorAC); 
                         break;
 
                     case 120:
-                        pRaw[Idx] = ToUChar(ColorABC);
+                        pRaw[Idx] = ToUChar(ColorABC); 
                         break;
 
                     default:

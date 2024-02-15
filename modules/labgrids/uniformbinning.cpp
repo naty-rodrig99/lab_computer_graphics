@@ -59,11 +59,51 @@ void UniformBinning::DoUniformBinning(const int nx, const int ny, const vector<v
                                       vector<vec2>& UniformGridVertices, vector<int>& Counts)
 {
     //TODO
-    //See the assignment sheet for detailed instructions.
+ 
+    //Find the minimum and maximum elements along the x and y coordinates of the point in Points 
+    auto xExtremes = std::minmax_element(Points.begin(), Points.end(), [](const vec2& lhs, const vec2& rhs) { return lhs.x < rhs.x; });
+    auto yExtremes = std::minmax_element(Points.begin(), Points.end(), [](const vec2& lhs, const vec2& rhs) { return lhs.y < rhs.y; });
+    vec2 lowerLeft(xExtremes.first->x, yExtremes.first->y); //x and y coordinates of the min x and y values
+    vec2 upperRight(xExtremes.second->x, yExtremes.second->y); //x and y coordinates of the max x and y values
 
+    //finding the width of each grid
+    float unit_x = float(upperRight.x - lowerLeft.x) / float(nx-1); //width of bounding box / divisions along the x-axis
+    //finding the height of each grid
+    float unit_y = float(upperRight.y - lowerLeft.y) / float(ny-1); //width of bounding box / divisions along the y-axis
+
+    const size_t NumVertices = nx * ny; //number of vertices
+    UniformGridVertices.reserve(NumVertices); //Tell the machine how many points you expect to add;
+    for (int i = 0; i < ny; i++)
+    {
+        for (int j = 0; j < nx; j++)
+        {
+            //distributes the vertices evenly along the x and y axis
+            vec2 NewVertex(lowerLeft.x + j *unit_x, lowerLeft.y + i * unit_y);
+            UniformGridVertices.push_back(NewVertex);
+        }
+    }
+
+    Counts.resize((nx - 1) * (ny - 1));  //Make the array Counts as large as we have grid cells in the uniform grid.
+    fill(Counts.begin(), Counts.end(), 0);//Fill the array with zeros
+    for (vec2 p : Points) 
+    {
+        //calculate position relative to the lower-left corner of the bounding box, then divide by width and height
+        int x_idx = (p.x - lowerLeft.x) / unit_x; 
+        int y_idx = (p.y - lowerLeft.y) / unit_y;
+
+        //adjusts the x and y-index if the point is exactly on the right boundary of the grid
+        if (x_idx == nx - 1) x_idx--; 
+        if (y_idx == ny - 1) y_idx--;
+
+        //increment count of points in the corresponding grid
+        Counts[y_idx * (nx - 1) + x_idx] += 1; 
+    }
+
+ 
+    /*
     //Example: add some vertices to UniformGridVertices.
     // this is not the solution
-    const size_t NumVertices = ny; //How many vertices will we have in the uniform grid?
+     const size_t NumVertices = ny;      //How many vertices will we have in the uniform grid?
     UniformGridVertices.reserve(NumVertices); //Tell the machine how many points you expect to add; much faster in real-world scenarios!
     for(int j=0;j<ny;j++)
     {
@@ -79,7 +119,7 @@ void UniformBinning::DoUniformBinning(const int nx, const int ny, const vector<v
     {
         size_t idx = i + ny; //Which grid cell are we in?
         Counts[idx] += 1; //Increment the count in this grid cell by one.
-    }
+    } */
 }
 
 
