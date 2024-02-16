@@ -53,81 +53,62 @@ Chaikin::Chaikin()
     MinNumDesiredPoints is the minimum number of points the resulting curve should contain.
     Curve is the array of points of the resulting curve after applying corner cutting.
 */
-void Chaikin::CornerCutting(const std::vector<vec3>& ControlPolygon,
-                            const size_t MinNumDesiredPoints,
-                            std::vector<vec3>& Curve)
+
+ void Chaikin::CornerCutting(const std::vector<vec3>& ControlPolygon, const size_t MinNumDesiredPoints, std::vector<vec3>& Curve)
 {
     Curve.clear();
+    std::vector<vec3> currentPolygon = ControlPolygon; //initialize new vector for currentPolygon
+    
     //calculates # of points to generate per original line segment
     const size_t NumPointsPerPolygonLeg = 1 + MinNumDesiredPoints / ControlPolygon.size();
-    //reserves memory
-    Curve.reserve(NumPointsPerPolygonLeg * ControlPolygon.size());
+    
+    Curve.reserve(NumPointsPerPolygonLeg * ControlPolygon.size()); //reserves memory
+
     float angle1 = 0;//stores angle1
     float angle2 = 0;//stores angle2
     int flag = 0;    //flag to alternate the calculation of the angles
 
     //iterates over each vertex in the polygon
-    for (size_t i(0); i < ControlPolygon.size(); i++)
+    for (size_t j(0); j < NumPointsPerPolygonLeg; j++)
     {
-        const vec3& LeftPoint = ControlPolygon[i]; //current vertex of the polygon
-        const vec3& RightPoint = ControlPolygon[(i + 1) % ControlPolygon.size()];//next vertex of the polygon
-        if (angle1 == 0 || flag == 0)
+        std::vector<vec3> newPolygon; //vector to store points after corner cutting
+        for (size_t i(0); i < currentPolygon.size(); i++)
         {
-            //Calculate the angle between the points
-            angle1 = atan2(LeftPoint.y - RightPoint.y, LeftPoint.x - RightPoint.x);
-            flag = 1;
-        }
-        else
-        {
-            //Calculate the angle between the points
-            angle2 = atan2(LeftPoint.y - RightPoint.y, LeftPoint.x - RightPoint.x);
-            flag = 0;
-        }
-        for (size_t j(0); j < NumPointsPerPolygonLeg; j++)//iterates over each point in current line segment
-        {
-            // Corner cutting (subdivide the line segment)
-            vec3 midPoint = (LeftPoint + RightPoint) / 2;    //midpoint of the current line segment
-            vec3 newLeftPoint = (LeftPoint + midPoint) / 2;  //new left point after corner cutting
-            vec3 newRightPoint = (midPoint + RightPoint) / 2;//new right point after corner cutting
-
-            if (angle1 != angle2)//check if the angle of current point is the same to the previous points
+            const vec3& LeftPoint = currentPolygon[i]; //current vertex of the polygon
+            const vec3& RightPoint = currentPolygon[(i + 1) % currentPolygon.size()]; //next vertex of the polygon
+            
+            if (angle1 == 0 || flag == 0)
             {
-                Curve.push_back(newLeftPoint);
-                Curve.push_back(newRightPoint);
+                //Calculate the angle between the points
+                angle1 = atan2(LeftPoint.y - RightPoint.y, LeftPoint.x - RightPoint.x);
+                flag = 1;
             }
             else
             {
-                Curve.push_back(midPoint);
+                //Calculate the angle between the points
+                angle2 = atan2(LeftPoint.y - RightPoint.y, LeftPoint.x - RightPoint.x);
+                flag = 0;
+            }
+
+            vec3 midPoint = (LeftPoint + RightPoint) / 2;
+            vec3 newLeftPoint = (LeftPoint + midPoint) / 2;  //new left point after corner cutting
+            vec3 newRightPoint = (midPoint + RightPoint) / 2; //new right point after corner cutting
+
+            if (angle1 != angle2)
+            {
+                newPolygon.push_back(newLeftPoint);
+                newPolygon.push_back(newRightPoint);
+            }
+            else
+            {
+                newPolygon.push_back(midPoint);
             }
         }
-    } 
-
-    /* Curve.clear();
-    //calculates # of points to generate per original line segment
-    const size_t NumPointsPerPolygonLeg = 1 + MinNumDesiredPoints / ControlPolygon.size();
-    //reserves memory
-    Curve.reserve(NumPointsPerPolygonLeg * ControlPolygon.size());
-
-    //iterates over each vertex in the polygon
-    for (size_t i(0); i < ControlPolygon.size(); i++)
-    {
-        const vec3& LeftPoint = ControlPolygon[i];                               //current vertex of the polygon
-        const vec3& RightPoint = ControlPolygon[(i + 1) % ControlPolygon.size()];//next vertex of the polygon
-
-        for (size_t j(0); j < NumPointsPerPolygonLeg; j++)//iterates over each point in current line segment
-        {
-
-            // Corner cutting (subdivide the line segment)
-            vec3 midPoint = (LeftPoint + RightPoint) / 2;    //midpoint of the current line segment
-            vec3 newLeftPoint = (LeftPoint + midPoint) / 2;  //new left point after corner cutting
-            vec3 newRightPoint = (midPoint + RightPoint) / 2;//new right point after corner cutting
-
-            Curve.push_back(newLeftPoint);
-            Curve.push_back(newRightPoint);
-        }
-    } */  
-
+        currentPolygon = newPolygon; //Updates currentPolygon with the new set of points
+    }
+    Curve = currentPolygon; //assigns final set of points to Curve
 }
+
 
 void Chaikin::process()
 {
